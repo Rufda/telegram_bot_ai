@@ -2,12 +2,15 @@ services:
   - type: web
     name: telegram-ai-bot
     env: python
-    region: oregon
     plan: free
     branch: main
-    pythonVersion: 3.11
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "python main.py"
+
+
+    pythonVersion: 3.11.3 
+
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
+
     envVars:
       - key: TELEGRAM_BOT_TOKEN
         sync: false
