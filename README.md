@@ -24,6 +24,8 @@ Questo progetto contiene un semplice bot Telegram basato su [aiogram](https://gi
 
 ## Deploy su Render
 1. Crea un nuovo servizio di tipo **Web Service** su [Render](https://dashboard.render.com/). Seleziona questo repository GitHub e usa il file `render.yaml` incluso.
+   Questo file imposta `pythonVersion: 3.11`, perciò assicurati di usare la stessa
+   versione anche in locale in modo da avere un ambiente coerente.
 2. Durante la configurazione, aggiungi le variabili d'ambiente nella sezione **Environment**:
    - `TELEGRAM_BOT_TOKEN`: il token del bot Telegram
    - `OPENAI_API_KEY`: la tua chiave API OpenAI
