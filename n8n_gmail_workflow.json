@@ -1,0 +1,135 @@
+{
+  "name": "Advanced Gmail Search",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": 1,
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "getAll",
+        "additionalFields": {
+          "query": "is:unread has:attachment \"ai agrnt\""
+        }
+      },
+      "name": "Search Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        450,
+        300
+      ],
+      "credentials": {
+        "gmailOAuth2Api": {
+          "id": "your-credential-id",
+          "name": "Gmail OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "items = items.flatMap(item => {\n  const attachments = item.json.payload.parts || [];\n  return attachments.filter(att => att.filename).map(att => ({\n    json: {\n      attachmentId: att.body.attachmentId,\n      messageId: item.json.id,\n      filename: att.filename\n    }\n  }));\n});\nreturn items;"
+      },
+      "name": "Extract Attachments",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        650,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "messageAttachment",
+        "operation": "get",
+        "messageId": "={{$json[\"messageId\"]}}",
+        "attachmentId": "={{$json[\"attachmentId\"]}}"
+      },
+      "name": "Download Attachment",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        850,
+        300
+      ],
+      "credentials": {
+        "gmailOAuth2Api": {
+          "id": "your-credential-id",
+          "name": "Gmail OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://your-attachment-analysis-tool.example/run",
+        "options": {},
+        "sendBinaryData": true,
+        "headerParameters": {},
+        "bodyParameters": {
+          "filename": "={{$json[\"filename\"]}}"
+        }
+      },
+      "name": "Analyze Attachment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1050,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Search Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Gmail": {
+      "main": [
+        [
+          {
+            "node": "Extract Attachments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Attachments": {
+      "main": [
+        [
+          {
+            "node": "Download Attachment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Attachment": {
+      "main": [
+        [
+          {
+            "node": "Analyze Attachment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
